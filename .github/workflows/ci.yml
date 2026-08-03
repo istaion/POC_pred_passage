@@ -41,4 +41,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Déclencher le déploiement Render
-        run: curl -fsSL "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK_URL n'est pas encore configuré (Settings > Secrets and variables > Actions) -- déploiement ignoré."
+            exit 0
+          fi
+          curl -fsSL "$HOOK_URL"
