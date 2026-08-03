@@ -40,6 +40,7 @@ pages = [
     st.Page("pages/1_Tableau_de_bord.py", title="Tableau de bord", icon="📊"),
     st.Page("pages/2_Etablissement.py", title="Par établissement", icon="🏫"),
     st.Page("pages/3_Comparaison_Prod.py", title="Comparaison Prod", icon="🔍"),
+    st.Page("pages/4_Monitorage_Modele.py", title="Monitorage modèle", icon="📈"),
 ]
 pg = st.navigation(pages, position="sidebar")
 pg.run()

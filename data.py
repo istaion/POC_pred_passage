@@ -72,7 +72,6 @@ def _fetch_predictions() -> pd.DataFrame:
                 service
             FROM {cfg["predictions"]}
             WHERE target_date >= DATE '2024-09-01'
-              AND model IN ('Ensemble', 'MovingAverage')
         """)
         rows = cursor.fetchall()
         cols = [d[0] for d in cursor.description]
@@ -96,7 +95,7 @@ def _fetch_etablissements() -> pd.DataFrame:
     for env, cfg in ENV_CONFIG.items():
         cursor = conn.cursor()
         cursor.execute(f"""
-            SELECT login AS uai, nometabs
+            SELECT login AS uai, nometabs, logingroupe
             FROM {cfg["etablissements"]}
         """)
         rows = cursor.fetchall()
@@ -358,3 +357,60 @@ def get_daily_totals(df_binned: pd.DataFrame) -> dict[str, pd.DataFrame]:
         daily = daily.sort_values("target_date")
         result[b] = daily
     return result
+
+
+# ---------------------------------------------------------------------------
+# Monitorage inter-modèles (C11) — au-delà d'Ensemble vs modèle naïf
+# ---------------------------------------------------------------------------
+
+def get_metrics_by_model(df_binned: pd.DataFrame) -> pd.DataFrame:
+    """Tableau de métriques (MAPE/MAE/RMSE/Biais) par (modèle, horizon bin)."""
+    rows = []
+    for model in sorted(df_binned["model"].dropna().unique()):
+        sub_model = df_binned[df_binned["model"] == model]
+        for b in HORIZON_BINS:
+            sub = sub_model[sub_model["horizon_bin"] == b].dropna(subset=["effectif_reel"])
+            sub = sub[sub["effectif_reel"] > 0]
+            if sub.empty:
+                continue
+            rows.append({
+                "Modèle": model,
+                "Horizon": b,
+                "MAPE (%)": round(compute_mape(sub["effectif_reel"], sub["prediction"]), 2),
+                "MAE": round(compute_mae(sub["effectif_reel"], sub["prediction"]), 1),
+                "RMSE": round(compute_rmse(sub["effectif_reel"], sub["prediction"]), 1),
+                "Biais moyen": round(compute_bias(sub["effectif_reel"], sub["prediction"]), 1),
+                "N": int(len(sub)),
+            })
+    return pd.DataFrame(rows)
+
+
+def get_mase_by_model(df_binned: pd.DataFrame) -> pd.DataFrame:
+    """
+    MASE par (modèle, établissement, horizon bin), modèle naïf de référence :
+    MovingAverage (cf. page 1). Une ligne par (uai, horizon bin, modèle).
+    """
+    rows = []
+    for (uai, env), grp in df_binned.groupby(["uai", "env"]):
+        for b in HORIZON_BINS:
+            sub_bin = grp[grp["horizon_bin"] == b]
+            ma = sub_bin[sub_bin["model"] == "MovingAverage"]
+            if ma.empty:
+                continue
+            for model in sub_bin["model"].unique():
+                if model == "MovingAverage":
+                    continue
+                mod = sub_bin[sub_bin["model"] == model]
+                merged = mod[["target_date", "service", "prediction", "effectif_reel"]].merge(
+                    ma[["target_date", "service", "prediction"]],
+                    on=["target_date", "service"],
+                    suffixes=("_mod", "_ma"),
+                )
+                merged = merged.dropna(subset=["effectif_reel"])
+                merged = merged[merged["effectif_reel"] > 0]
+                if merged.empty:
+                    continue
+                mase = compute_mase(merged["prediction_mod"], merged["prediction_ma"], merged["effectif_reel"])
+                if not np.isnan(mase):
+                    rows.append({"uai": uai, "env": env, "horizon_bin": b, "model": model, "mase": mase})
+    return pd.DataFrame(rows, columns=["uai", "env", "horizon_bin", "model", "mase"])
