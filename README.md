@@ -48,7 +48,8 @@ cp .env.example .env   # puis renseigner les identifiants (voir ci-dessous)
 |---|---|
 | `OVH_API_KEY` / `OVH_SECRET_KEY` | Accès en lecture à l'entrepôt Trino (OVH Data Platform) |
 | `DATABRIDGE_URL` | URL de l'API IAnord Data Bridge |
-| `CLIENT_KEY` / `CLIENT_SECRET` | Identifiants d'authentification à cette API |
+| `CLIENT_KEY` / `CLIENT_SECRET` | Identifiants d'authentification applicative à cette API |
+| `DATABRIDGE_BASIC_AUTH_USER` / `DATABRIDGE_BASIC_AUTH_PASSWORD` | Basic Auth de la passerelle placée devant l'API en production — protège toutes les routes, en amont du token applicatif ci-dessus |
 
 ## Exécution
 

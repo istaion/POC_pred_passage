@@ -40,6 +40,16 @@ except FileNotFoundError as e:
 # ---------------------------------------------------------------------------
 # Token DataBridge (mis en cache dans la session)
 # ---------------------------------------------------------------------------
+def _gateway_basic_auth() -> tuple[str, str] | None:
+    """Basic Auth de la passerelle placée devant l'API en production (toutes
+    les routes en sont protégées, en plus du token applicatif /auth/token)."""
+    user = os.getenv("DATABRIDGE_BASIC_AUTH_USER")
+    password = os.getenv("DATABRIDGE_BASIC_AUTH_PASSWORD")
+    if user and password:
+        return (user, password)
+    return None
+
+
 def _get_api_token() -> str:
     if "databridge_token" not in st.session_state:
         url = f"{os.getenv('DATABRIDGE_URL')}/auth/token"
@@ -49,6 +59,7 @@ def _get_api_token() -> str:
                 "client_key": os.getenv("CLIENT_KEY"),
                 "client_secret": os.getenv("CLIENT_SECRET"),
             },
+            auth=_gateway_basic_auth(),
         )
         resp.raise_for_status()
         token = resp.json().get("token") or resp.json().get("access_token")
@@ -122,7 +133,7 @@ with st.spinner("Récupération des prédictions API…"):
             f"&environnement_client={ENV_CONFIG[selected_env]['api_env']}"
             f"&include_all_models=true"
         )
-        resp = requests.get(api_url, headers={"X-Api-Token": token})
+        resp = requests.get(api_url, headers={"X-Api-Token": token}, auth=_gateway_basic_auth())
         if resp.status_code == 401:
             _reset_token()
             st.error("Token expiré — cliquez sur 'Réinitialiser le token' puis rechargez.")

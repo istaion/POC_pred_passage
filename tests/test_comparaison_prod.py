@@ -112,3 +112,43 @@ def test_empty_predictions_list():
     assert not at.exception, [e.value for e in at.exception]
     assert len(at.warning) == 1
     assert "aucune prédiction" in at.warning[0].value.lower()
+
+
+def test_gateway_basic_auth_sent_when_configured(monkeypatch):
+    """La passerelle placée devant l'API en production exige une Basic Auth sur
+    toutes les routes, en plus du token applicatif -- vérifie qu'elle est bien
+    transmise sur les deux appels (auth/token et predict/results) quand les
+    identifiants sont configurés."""
+    monkeypatch.setenv("DATABRIDGE_BASIC_AUTH_USER", "gateway-user")
+    monkeypatch.setenv("DATABRIDGE_BASIC_AUTH_PASSWORD", "gateway-pass")
+
+    predict_resp = MagicMock(status_code=200)
+    predict_resp.json.return_value = []
+    predict_resp.raise_for_status = lambda: None
+
+    with patch("requests.post", return_value=_mock_token_response()) as mock_post, \
+         patch("requests.get", return_value=predict_resp) as mock_get:
+        at = AppTest.from_file(PAGE_PATH)
+        _click_load_button(at)
+
+    assert not at.exception, [e.value for e in at.exception]
+    assert mock_post.call_args.kwargs["auth"] == ("gateway-user", "gateway-pass")
+    assert mock_get.call_args.kwargs["auth"] == ("gateway-user", "gateway-pass")
+
+
+def test_gateway_basic_auth_absent_when_not_configured():
+    """Sans identifiants configurés, aucune Basic Auth n'est envoyée (pas de
+    crash, comportement rétrocompatible pour un environnement qui n'en a pas
+    besoin)."""
+    predict_resp = MagicMock(status_code=200)
+    predict_resp.json.return_value = []
+    predict_resp.raise_for_status = lambda: None
+
+    with patch("requests.post", return_value=_mock_token_response()) as mock_post, \
+         patch("requests.get", return_value=predict_resp) as mock_get:
+        at = AppTest.from_file(PAGE_PATH)
+        _click_load_button(at)
+
+    assert not at.exception, [e.value for e in at.exception]
+    assert mock_post.call_args.kwargs["auth"] is None
+    assert mock_get.call_args.kwargs["auth"] is None
