@@ -1,0 +1,44 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Installer les dépendances
+        run: uv sync --group dev
+
+      - name: Exécuter les tests
+        run: uv run pytest tests/ -v
+
+  build:
+    name: Build de l'image Docker
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire l'image (validation du Dockerfile)
+        run: docker build -t poc-pred-passage:${{ github.sha }} .
+
+  deploy:
+    name: Déploiement Render
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclencher le déploiement Render
+        run: curl -fsSL "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"

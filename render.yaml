@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: poc-pred-passage
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /_stcore/health
+    # Le déploiement n'est PAS automatique sur chaque push : il est déclenché
+    # explicitement par la chaîne GitHub Actions (.github/workflows/ci.yml),
+    # uniquement après succès des tests -- voir ce fichier pour le détail.
+    autoDeploy: false
+    envVars:
+      - key: OVH_API_KEY
+        sync: false
+      - key: OVH_SECRET_KEY
+        sync: false
+      - key: DATABRIDGE_URL
+        sync: false
+      - key: CLIENT_KEY
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
