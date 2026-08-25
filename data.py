@@ -27,13 +27,11 @@ ENV_CONFIG = {
         "predictions": "db_mg6jk45h_default_dataset.default_dataset.passage_predict",
         "etablissements": "db_mg6jk45h_webgerest_centre.webgerest_centre.centr_login",
         "effect": "db_mg6jk45h_webgerest_centre.webgerest_centre.centr_effect",
-        "api_env": "prodcentre",
     },
     "prod13": {
         "predictions": "db_mg6jk45h_prod13.prod13.wg_13_passage_predict",
         "etablissements": "db_mg6jk45h_prod13.prod13.wg_13_login",
         "effect": "db_mg6jk45h_prod13.prod13.wg_13_effect",
-        "api_env": "prod13",
     },
 }
 

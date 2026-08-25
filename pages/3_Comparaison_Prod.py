@@ -130,7 +130,6 @@ with st.spinner("Récupération des prédictions API…"):
         api_url = (
             f"{os.getenv('DATABRIDGE_URL')}/predict/results/{selected_uai}/"
             f"?min_date={start_date}&max_date={end_date}"
-            f"&environnement_client={ENV_CONFIG[selected_env]['api_env']}"
             f"&include_all_models=true"
         )
         resp = requests.get(api_url, headers={"X-Api-Token": token}, auth=_gateway_basic_auth())
