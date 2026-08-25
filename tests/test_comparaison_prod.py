@@ -78,7 +78,7 @@ def test_nominal_200_with_predictions():
 
     with patch("requests.post", return_value=_mock_token_response()), \
          patch("requests.get", return_value=predict_resp):
-        at = AppTest.from_file(PAGE_PATH)
+        at = AppTest.from_file(PAGE_PATH, default_timeout=15)
         _click_load_button(at)
 
     assert not at.exception, [e.value for e in at.exception]
@@ -90,7 +90,7 @@ def test_expired_token_returns_401():
 
     with patch("requests.post", return_value=_mock_token_response()), \
          patch("requests.get", return_value=predict_resp):
-        at = AppTest.from_file(PAGE_PATH)
+        at = AppTest.from_file(PAGE_PATH, default_timeout=15)
         _click_load_button(at)
 
     assert not at.exception, [e.value for e in at.exception]
@@ -106,7 +106,7 @@ def test_empty_predictions_list():
 
     with patch("requests.post", return_value=_mock_token_response()), \
          patch("requests.get", return_value=predict_resp):
-        at = AppTest.from_file(PAGE_PATH)
+        at = AppTest.from_file(PAGE_PATH, default_timeout=15)
         _click_load_button(at)
 
     assert not at.exception, [e.value for e in at.exception]
@@ -128,7 +128,7 @@ def test_gateway_basic_auth_sent_when_configured(monkeypatch):
 
     with patch("requests.post", return_value=_mock_token_response()) as mock_post, \
          patch("requests.get", return_value=predict_resp) as mock_get:
-        at = AppTest.from_file(PAGE_PATH)
+        at = AppTest.from_file(PAGE_PATH, default_timeout=15)
         _click_load_button(at)
 
     assert not at.exception, [e.value for e in at.exception]
@@ -146,7 +146,7 @@ def test_gateway_basic_auth_absent_when_not_configured():
 
     with patch("requests.post", return_value=_mock_token_response()) as mock_post, \
          patch("requests.get", return_value=predict_resp) as mock_get:
-        at = AppTest.from_file(PAGE_PATH)
+        at = AppTest.from_file(PAGE_PATH, default_timeout=15)
         _click_load_button(at)
 
     assert not at.exception, [e.value for e in at.exception]

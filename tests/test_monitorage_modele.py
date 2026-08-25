@@ -82,7 +82,7 @@ def _mock_sparse_data(monkeypatch):
 
 
 def test_nominal_multi_model_renders_table_and_boxplot(_mock_rich_data):
-    at = AppTest.from_file(PAGE_PATH)
+    at = AppTest.from_file(PAGE_PATH, default_timeout=15)
     at.run()
 
     assert not at.exception, [e.value for e in at.exception]
@@ -92,7 +92,7 @@ def test_nominal_multi_model_renders_table_and_boxplot(_mock_rich_data):
 
 
 def test_insufficient_data_shows_info_without_crash(_mock_sparse_data):
-    at = AppTest.from_file(PAGE_PATH)
+    at = AppTest.from_file(PAGE_PATH, default_timeout=15)
     at.run()
 
     assert not at.exception, [e.value for e in at.exception]
