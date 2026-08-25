@@ -43,8 +43,8 @@ except FileNotFoundError as e:
 def _gateway_basic_auth() -> tuple[str, str] | None:
     """Basic Auth de la passerelle placée devant l'API en production (toutes
     les routes en sont protégées, en plus du token applicatif /auth/token)."""
-    user = os.getenv("DATABRIDGE_BASIC_AUTH_USER")
-    password = os.getenv("DATABRIDGE_BASIC_AUTH_PASSWORD")
+    user = os.getenv("IANORD_USERNAME")
+    password = os.getenv("IANORD_PASSWORD")
     if user and password:
         return (user, password)
     return None

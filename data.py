@@ -23,10 +23,10 @@ BIN_ORDER = {b: i for i, b in enumerate(HORIZON_BINS)}
 # Mettre à jour ici lors des migrations de tables
 ENV_CONFIG = {
     "prodcentre": {
-        # Transitoire — sera remplacé par db_mg6jk45h_prodcentre.prodcentre.wg_test_passage_predict
+        # Transitoire — sera remplacé par db_mg6jk45h_webgerest_centre.webgerest_centre.wg_test_passage_predict
         "predictions": "db_mg6jk45h_default_dataset.default_dataset.passage_predict",
-        "etablissements": "db_mg6jk45h_prodcentre.prodcentre.wg_test_login",
-        "effect": "db_mg6jk45h_prodcentre.prodcentre.wg_test_effect",
+        "etablissements": "db_mg6jk45h_webgerest_centre.webgerest_centre.wg_test_login",
+        "effect": "db_mg6jk45h_webgerest_centre.webgerest_centre.wg_test_effect",
         "api_env": "prodcentre",
     },
     "prod13": {

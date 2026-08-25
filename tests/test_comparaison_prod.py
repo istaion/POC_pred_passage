@@ -119,8 +119,8 @@ def test_gateway_basic_auth_sent_when_configured(monkeypatch):
     toutes les routes, en plus du token applicatif -- vérifie qu'elle est bien
     transmise sur les deux appels (auth/token et predict/results) quand les
     identifiants sont configurés."""
-    monkeypatch.setenv("DATABRIDGE_BASIC_AUTH_USER", "gateway-user")
-    monkeypatch.setenv("DATABRIDGE_BASIC_AUTH_PASSWORD", "gateway-pass")
+    monkeypatch.setenv("IANORD_USERNAME", "gateway-user")
+    monkeypatch.setenv("IANORD_PASSWORD", "gateway-pass")
 
     predict_resp = MagicMock(status_code=200)
     predict_resp.json.return_value = []

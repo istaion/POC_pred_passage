@@ -49,7 +49,7 @@ cp .env.example .env   # puis renseigner les identifiants (voir ci-dessous)
 | `OVH_API_KEY` / `OVH_SECRET_KEY` | Accès en lecture à l'entrepôt Trino (OVH Data Platform) |
 | `DATABRIDGE_URL` | URL de l'API IAnord Data Bridge |
 | `CLIENT_KEY` / `CLIENT_SECRET` | Identifiants d'authentification applicative à cette API |
-| `DATABRIDGE_BASIC_AUTH_USER` / `DATABRIDGE_BASIC_AUTH_PASSWORD` | Basic Auth de la passerelle placée devant l'API en production — protège toutes les routes, en amont du token applicatif ci-dessus |
+| `IANORD_USERNAME` / `IANORD_PASSWORD` | Basic Auth de la passerelle placée devant l'API en production — protège toutes les routes, en amont du token applicatif ci-dessus |
 
 ## Exécution
 
@@ -63,9 +63,9 @@ uv run streamlit run app.py
 uv run pytest tests/ -v
 ```
 
-5 tests d'intégration (`streamlit.testing.v1.AppTest`), sur les pages "Comparaison Prod" (intégration
-API) et "Monitorage modèle" : appels réseau et accès à l'entrepôt de données simulés, aucune
-dépendance à un accès réel pour exécuter la suite.
+7 tests d'intégration (`streamlit.testing.v1.AppTest`), sur les pages "Comparaison Prod" (intégration
+API, dont la Basic Auth de la passerelle) et "Monitorage modèle" : appels réseau et accès à
+l'entrepôt de données simulés, aucune dépendance à un accès réel pour exécuter la suite.
 
 ## Déploiement
 
