@@ -34,6 +34,10 @@ def _fake_etab_df() -> pd.DataFrame:
 
 @pytest.fixture(autouse=True)
 def _env(monkeypatch):
+    # Neutralise load_dotenv() : la page en fait un frais à chaque exécution
+    # AppTest, donc sans ça un vrai .env local (identifiants réels) réimporte
+    # des valeurs que les tests/monkeypatch ne peuvent plus prévoir ni annuler.
+    monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: False)
     monkeypatch.setenv("DATABRIDGE_URL", "https://databridge.test")
     monkeypatch.setenv("CLIENT_KEY", "test-key")
     monkeypatch.setenv("CLIENT_SECRET", "test-secret")
@@ -136,10 +140,13 @@ def test_gateway_basic_auth_sent_when_configured(monkeypatch):
     assert mock_get.call_args.kwargs["auth"] == ("gateway-user", "gateway-pass")
 
 
-def test_gateway_basic_auth_absent_when_not_configured():
+def test_gateway_basic_auth_absent_when_not_configured(monkeypatch):
     """Sans identifiants configurés, aucune Basic Auth n'est envoyée (pas de
     crash, comportement rétrocompatible pour un environnement qui n'en a pas
     besoin)."""
+    monkeypatch.delenv("IANORD_USERNAME", raising=False)
+    monkeypatch.delenv("IANORD_PASSWORD", raising=False)
+
     predict_resp = MagicMock(status_code=200)
     predict_resp.json.return_value = []
     predict_resp.raise_for_status = lambda: None
