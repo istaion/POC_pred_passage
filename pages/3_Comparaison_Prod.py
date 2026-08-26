@@ -128,7 +128,7 @@ with st.spinner("Récupération des prédictions API…"):
     try:
         token = _get_api_token()
         api_url = (
-            f"{os.getenv('DATABRIDGE_URL')}/predict/results/{selected_uai}/"
+            f"{os.getenv('DATABRIDGE_URL')}/predict/results/{selected_uai}"
             f"?min_date={start_date}&max_date={end_date}"
             f"&include_all_models=true"
         )
